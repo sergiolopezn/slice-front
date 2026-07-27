@@ -1,121 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import {
+  Badge,
+  Button,
+  Card,
+  OrderCardHeader,
+} from '@/shared/components/ui'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main className="min-h-screen bg-bg-app p-6">
+      <h1 className="mb-8 text-2xl font-bold tracking-tight text-white">
+        SliceOS UI Components
+      </h1>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
+      <section className="mb-10">
+        <h2 className="mb-4 text-base font-bold text-white">Badges</h2>
+        <div className="flex flex-wrap gap-3">
+          <Badge variant="rush">RUSH</Badge>
+          <Badge variant="prep">PREP</Badge>
+          <Badge variant="ready">READY</Badge>
+          <Badge variant="cod">COD</Badge>
         </div>
       </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <section className="mb-10">
+        <h2 className="mb-4 text-base font-bold text-white">Buttons</h2>
+        <div className="grid max-w-md gap-3">
+          <Button variant="bump">BUMP ORDER</Button>
+          <Button variant="check-temp">CHECK TEMP</Button>
+          <Button variant="complete">COMPLETE</Button>
+          <Button variant="complete" disabled>
+            COMPLETE (DISABLED)
+          </Button>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-base font-bold text-white">Order Cards</h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <Card>
+            <OrderCardHeader orderNumber="#402" timer="12:06" status="rush" />
+            <div className="p-4">
+              <p className="text-base font-bold text-white">Marco Rossi</p>
+              <p className="text-sm font-medium text-zinc-200">1x Large Pepperoni</p>
+              <div className="mt-4">
+                <Button variant="bump">BUMP ORDER</Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <OrderCardHeader orderNumber="#398" timer="08:14" status="prep" />
+            <div className="p-4">
+              <p className="text-base font-bold text-white">David Chen</p>
+              <p className="text-sm font-medium text-zinc-200">1x Caesar Salad</p>
+              <div className="mt-4">
+                <Button variant="check-temp">CHECK TEMP</Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <OrderCardHeader orderNumber="#401" timer="00:00" status="ready" />
+            <div className="p-4">
+              <p className="text-base font-bold text-white">Sarah Kim</p>
+              <p className="text-sm font-medium text-zinc-200">2x Margherita</p>
+              <div className="mt-4">
+                <Button variant="complete">COMPLETE</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+    </main>
   )
 }
 
