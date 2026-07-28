@@ -23,11 +23,11 @@ describe('OrderCardHeader', () => {
     expect(banner?.className).toContain('text-black')
   })
 
-  it('renders ready status with black-on-mint styling', () => {
-    render(<OrderCardHeader orderNumber="#401" timer="00:00" status="ready" />)
+  it('renders pending status with muted gray styling', () => {
+    render(<OrderCardHeader orderNumber="Pending" timer="—" status="pending" />)
 
-    const banner = screen.getByText('#401').closest('div')
-    expect(banner?.className).toContain('bg-status-ready-mint')
-    expect(banner?.className).toContain('text-black')
+    const banner = screen.getByText('Pending').closest('div')
+    expect(banner?.className).toContain('bg-status-idle-gray')
+    expect(banner?.className).toContain('text-text-muted')
   })
 })

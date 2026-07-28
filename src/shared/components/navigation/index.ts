@@ -1,5 +1,7 @@
 export { NavItem } from './NavItem'
 export { Sidebar } from './Sidebar'
+export { SidebarBackdrop } from './SidebarBackdrop'
+export { SidebarToggle } from './SidebarToggle'
 export { UserProfile } from './UserProfile'
 export { NAV_ITEMS } from './navItems'
 export type { NavItemConfig } from './navItems'

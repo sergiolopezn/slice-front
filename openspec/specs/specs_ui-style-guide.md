@@ -77,8 +77,15 @@ All UI components reside in `src/shared/components/ui/` built on dark-theme prim
 
 ## 4. Layout Architecture
 
-- **Main KDS Board:** `bg-[#121214] min-h-screen grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6`
+- **Live Orders Board (horizontal stream):** `bg-bg-app min-h-screen p-6` with ticket cards in a horizontal flex/scroll container (`flex gap-6 overflow-x-auto`). Each card is a fixed-width column (`w-80 shrink-0`) within the stream.
 - **Touch Ergonomics:** All card action buttons and navigation items feature minimum **48px height** for seamless kitchen touch screen usage.
+
+### Order Item Row
+
+- **Checkbox:** Visible checkbox aligned with item description; use `accent-status-prep-amber`.
+- **Completed item:** Label renders with `line-through` decoration and muted text color (`text-text-muted`).
+- **Incomplete item:** Label uses `text-sm font-medium text-zinc-200`.
+- **Modifiers:** Rendered in monospace muted text below the item label.
 
 ---
 

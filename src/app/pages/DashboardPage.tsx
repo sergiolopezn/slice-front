@@ -1,5 +1,5 @@
-import { PlaceholderPage } from './PlaceholderPage'
+import { DashboardView } from '@/features/dashboard'
 
 export function DashboardPage() {
-  return <PlaceholderPage title="Dashboard" />
+  return <DashboardView />
 }

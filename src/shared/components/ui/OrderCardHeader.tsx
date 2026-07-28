@@ -1,9 +1,10 @@
-export type OrderStatus = 'rush' | 'prep' | 'ready'
+export type OrderStatus = 'rush' | 'prep' | 'ready' | 'pending'
 
 const statusClasses: Record<OrderStatus, string> = {
   rush: 'bg-status-urgent-red text-white',
   prep: 'bg-status-prep-amber text-black',
   ready: 'bg-status-ready-mint text-black',
+  pending: 'bg-status-idle-gray text-text-muted',
 }
 
 type OrderCardHeaderProps = {

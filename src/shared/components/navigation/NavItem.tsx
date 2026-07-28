@@ -3,9 +3,10 @@ import type { NavItemConfig } from './navItems'
 
 type NavItemProps = {
   item: NavItemConfig
+  onNavigate?: () => void
 }
 
-export function NavItem({ item }: NavItemProps) {
+export function NavItem({ item, onNavigate }: NavItemProps) {
   const Icon = item.icon
 
   return (
@@ -13,6 +14,7 @@ export function NavItem({ item }: NavItemProps) {
       to={item.path}
       end={item.path === '/'}
       discover="none"
+      onClick={() => onNavigate?.()}
       className={({ isActive }) =>
         [
           'flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors',

@@ -1,5 +1,5 @@
-import { PlaceholderPage } from './PlaceholderPage'
+import { LiveOrdersDashboard } from '@/features/live-orders'
 
 export function LiveOrdersPage() {
-  return <PlaceholderPage title="Live orders" />
+  return <LiveOrdersDashboard />
 }

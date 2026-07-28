@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
@@ -5,10 +6,16 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/app/router'
 
 function renderApp(initialRoute = '/') {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false, refetchInterval: false } },
+  })
+
   return render(
-    <MemoryRouter initialEntries={[initialRoute]}>
-      <AppRoutes />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[initialRoute]}>
+        <AppRoutes />
+      </MemoryRouter>
+    </QueryClientProvider>,
   )
 }
 
@@ -45,7 +52,7 @@ describe('App navigation shell', () => {
     await user.click(screen.getByRole('link', { name: 'Live orders' }))
 
     await waitFor(() => {
-      expect(mainContent().getByRole('heading', { name: 'Live orders' })).toBeInTheDocument()
+      expect(mainContent().getByTestId('kds-header')).toBeInTheDocument()
     })
 
     const liveOrdersLink = screen.getByRole('link', { name: 'Live orders' })
@@ -64,5 +71,57 @@ describe('App navigation shell', () => {
       'aria-current',
       'page',
     )
+  })
+})
+
+describe('Responsive sidebar', () => {
+  it('opens the sidebar when the hamburger is clicked', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+
+    const sidebar = screen.getByTestId('app-sidebar')
+    expect(sidebar).toHaveAttribute('data-mobile-open', 'false')
+
+    await user.click(screen.getByTestId('sidebar-toggle'))
+
+    expect(sidebar).toHaveAttribute('data-mobile-open', 'true')
+    expect(screen.getByTestId('sidebar-toggle')).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('closes the sidebar when the backdrop is clicked', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+
+    await user.click(screen.getByTestId('sidebar-toggle'))
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('data-mobile-open', 'true')
+
+    await user.click(screen.getByTestId('sidebar-backdrop'))
+
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('data-mobile-open', 'false')
+  })
+
+  it('closes the sidebar and navigates when a nav link is clicked', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+
+    await user.click(screen.getByTestId('sidebar-toggle'))
+    await user.click(screen.getByRole('link', { name: 'Live orders' }))
+
+    await waitFor(() => {
+      expect(mainContent().getByTestId('kds-header')).toBeInTheDocument()
+    })
+
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('data-mobile-open', 'false')
+  })
+
+  it('keeps desktop sidebar layout classes without requiring toggle interaction', async () => {
+    renderApp('/')
+
+    const sidebar = screen.getByTestId('app-sidebar')
+    expect(sidebar.className).toContain('lg:static')
+    expect(sidebar.className).toContain('lg:translate-x-0')
+
+    const mobileHeader = screen.getByTestId('sidebar-toggle').closest('header')
+    expect(mobileHeader?.className).toContain('lg:hidden')
   })
 })
