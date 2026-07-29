@@ -1,5 +1,5 @@
-import { PlaceholderPage } from './PlaceholderPage'
+import { MenuManagementView } from '@/features/menu-management'
 
 export function MenuPage() {
-  return <PlaceholderPage title="Menu management" />
+  return <MenuManagementView />
 }
