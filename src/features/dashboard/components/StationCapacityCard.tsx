@@ -38,7 +38,7 @@ type StationCapacitySectionProps = {
 
 export function StationCapacitySection({ stations }: StationCapacitySectionProps) {
   return (
-    <Card className="p-5" data-testid="station-capacity-section">
+    <Card className="p-5" data-testid="station-capacity-section" id="station-capacity-section">
       <h2 className="text-base font-bold text-white">Kitchen Capacity &amp; Station Health</h2>
       <div className="mt-4 space-y-5">
         {stations.map((station) => (

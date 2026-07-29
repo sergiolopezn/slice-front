@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '@/app/router'
 
 function renderApp(initialRoute = '/') {
@@ -123,5 +123,39 @@ describe('Responsive sidebar', () => {
 
     const mobileHeader = screen.getByTestId('sidebar-toggle').closest('header')
     expect(mobileHeader?.className).toContain('lg:hidden')
+  })
+
+  it('closes the sidebar when Escape is pressed', async () => {
+    const user = userEvent.setup()
+    renderApp('/')
+
+    await user.click(screen.getByTestId('sidebar-toggle'))
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('data-mobile-open', 'true')
+
+    await user.keyboard('{Escape}')
+
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('data-mobile-open', 'false')
+  })
+
+  it('hides mobile drawer from accessibility tree when closed', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: !query.includes('min-width: 1024px'),
+        media: query,
+        onchange: null,
+        addListener: () => {},
+        removeListener: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {},
+        dispatchEvent: () => false,
+      })),
+    )
+
+    renderApp('/')
+
+    expect(screen.getByTestId('app-sidebar')).toHaveAttribute('aria-hidden', 'true')
+
+    vi.unstubAllGlobals()
   })
 })

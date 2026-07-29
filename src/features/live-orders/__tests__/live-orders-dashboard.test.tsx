@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { AppRoutes } from '@/app/router'
 import { LiveOrdersDashboard } from '@/features/live-orders'
+import { resetOrdersForTests } from '@/features/live-orders/api/mockOrdersApi'
 import { useItemCompletion } from '@/features/live-orders/hooks/useItemCompletion'
 
 function createTestQueryClient() {
@@ -43,6 +44,7 @@ function mainContent() {
 }
 
 beforeEach(() => {
+  resetOrdersForTests()
   useItemCompletion.setState({ completed: {} })
 })
 
@@ -106,6 +108,54 @@ describe('LiveOrdersDashboard', () => {
     expect(screen.getByRole('button', { name: /bump order/i })).toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /check temp/i }).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByRole('button', { name: /complete/i })).toBeInTheDocument()
+  })
+
+  it('advances urgent order to in-oven without removing the ticket', async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-ord-402')).toBeInTheDocument()
+    })
+
+    const urgentCard = screen.getByTestId('ticket-ord-402')
+    await user.click(within(urgentCard).getByRole('button', { name: /bump order/i }))
+
+    await waitFor(() => {
+      expect(within(urgentCard).getByRole('button', { name: /check temp/i })).toBeInTheDocument()
+    })
+  })
+
+  it('advances in-oven order to ready without removing the ticket', async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-ord-398')).toBeInTheDocument()
+    })
+
+    const inOvenCard = screen.getByTestId('ticket-ord-398')
+    await user.click(within(inOvenCard).getByRole('button', { name: /check temp/i }))
+
+    await waitFor(() => {
+      expect(within(inOvenCard).getByRole('button', { name: /complete/i })).toBeInTheDocument()
+    })
+  })
+
+  it('removes ready order when complete is clicked', async () => {
+    const user = userEvent.setup()
+    renderDashboard()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-ord-390')).toBeInTheDocument()
+    })
+
+    const readyCard = screen.getByTestId('ticket-ord-390')
+    await user.click(within(readyCard).getByRole('button', { name: /complete/i }))
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('ticket-ord-390')).not.toBeInTheDocument()
+    })
   })
 
   it('renders on the /live-orders route', async () => {

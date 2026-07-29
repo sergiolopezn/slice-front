@@ -23,6 +23,8 @@ export function useAdvanceOrderStatus() {
       const previous = queryClient.getQueryData<OrderTicket[]>(ORDERS_QUERY_KEY)
 
       if (previous) {
+        const previousOrder = previous.find((order) => order.id === orderId)
+
         queryClient.setQueryData<OrderTicket[]>(ORDERS_QUERY_KEY, (current) => {
           if (!current) return current
 
@@ -34,7 +36,10 @@ export function useAdvanceOrderStatus() {
               if (order.status === 'IN_OVEN') return { ...order, status: 'READY' as const }
               return order
             })
-            .filter((order) => !(order.id === orderId && order.status === 'READY'))
+            .filter((order) => {
+              if (order.id !== orderId) return true
+              return previousOrder?.status !== 'READY'
+            })
         })
       }
 

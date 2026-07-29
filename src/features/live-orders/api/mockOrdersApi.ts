@@ -2,7 +2,7 @@ import type { OrderPhase, OrderTicket } from '../types/order'
 
 const LATENCY_MS = 150
 
-let orders: OrderTicket[] = [
+const SEED_ORDERS: OrderTicket[] = [
   {
     id: 'ord-402',
     orderNumber: '#402',
@@ -64,6 +64,20 @@ let orders: OrderTicket[] = [
   },
 ]
 
+let orders: OrderTicket[] = SEED_ORDERS.map((order) => ({
+  ...order,
+  metadata: { ...order.metadata },
+  items: order.items.map((item) => ({ ...item })),
+}))
+
+function cloneOrders(source: OrderTicket[]): OrderTicket[] {
+  return source.map((order) => ({
+    ...order,
+    metadata: { ...order.metadata },
+    items: order.items.map((item) => ({ ...item })),
+  }))
+}
+
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -112,4 +126,8 @@ function getNextStatus(status: OrderPhase): OrderPhase | 'REMOVED' | null {
 
 export function countByPhase(ordersList: OrderTicket[], phase: OrderPhase): number {
   return ordersList.filter((order) => order.status === phase).length
+}
+
+export function resetOrdersForTests() {
+  orders = cloneOrders(SEED_ORDERS)
 }

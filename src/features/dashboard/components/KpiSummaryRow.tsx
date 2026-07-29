@@ -5,9 +5,10 @@ import { TrendUpIcon } from './icons'
 
 type KpiSummaryRowProps = {
   kpis: KpiMetric[]
+  onReviewCapacity?: () => void
 }
 
-export function KpiSummaryRow({ kpis }: KpiSummaryRowProps) {
+export function KpiSummaryRow({ kpis, onReviewCapacity }: KpiSummaryRowProps) {
   return (
     <section aria-label="KPI summary" data-testid="kpi-summary-row">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -42,6 +43,7 @@ export function KpiSummaryRow({ kpis }: KpiSummaryRowProps) {
             {kpi.actionLabel ? (
               <button
                 type="button"
+                onClick={onReviewCapacity}
                 className="mt-4 min-h-12 w-full rounded-xl border-2 border-status-urgent-red px-4 py-2 text-sm font-bold uppercase tracking-wider text-status-urgent-red transition-colors hover:bg-status-urgent-red hover:text-white"
               >
                 {kpi.actionLabel}
