@@ -1,5 +1,5 @@
-import { PlaceholderPage } from './PlaceholderPage'
+import { OrderHistoryView } from '@/features/order-history'
 
 export function OrderHistoryPage() {
-  return <PlaceholderPage title="Order history" />
+  return <OrderHistoryView />
 }
