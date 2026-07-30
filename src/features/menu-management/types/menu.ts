@@ -18,6 +18,7 @@ export type MenuItem = {
   price: number
   categoryPill: string
   available: boolean
+  imageUrl: string
 }
 
 export type Topping = {

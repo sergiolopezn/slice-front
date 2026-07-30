@@ -36,9 +36,10 @@ export function MenuItemCard({
         </div>
       ) : null}
 
-      <div
-        aria-hidden="true"
-        className="h-36 bg-gradient-to-br from-status-idle-gray via-surface-border to-bg-app"
+      <img
+        src={item.imageUrl}
+        alt={item.name}
+        className="h-36 w-full object-cover"
       />
 
       <div className="flex flex-1 flex-col gap-4 p-4">

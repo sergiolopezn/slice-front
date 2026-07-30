@@ -8,6 +8,9 @@ import { getSyncStatus } from '../types/menu'
 
 const LATENCY_MS = 120
 
+const DEFAULT_ITEM_IMAGE =
+  'https://images.unsplash.com/photo-1513104890138-7c749659a591'
+
 const SEED_QUICK86: Quick86Ingredient[] = [
   { id: '86-pepperoni', name: 'Pepperoni', inStock: true, syncStatus: 'synced' },
   { id: '86-basil', name: 'Fresh Basil', inStock: false, syncStatus: 'paused' },
@@ -23,6 +26,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 14,
     categoryPill: 'CLASSIC',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-pepperoni-feast',
@@ -31,6 +35,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 16,
     categoryPill: 'CLASSIC',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-truffle-funghi',
@@ -39,6 +44,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 22,
     categoryPill: 'SIGNATURE',
     available: false,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-bbq-chicken',
@@ -47,6 +53,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 18.5,
     categoryPill: 'SPECIALTY',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-garlic-knots',
@@ -55,6 +62,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 6,
     categoryPill: 'SIDES',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-caesar-salad',
@@ -63,6 +71,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 8.5,
     categoryPill: 'SIDES',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-craft-soda',
@@ -71,6 +80,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 3.5,
     categoryPill: 'DRINKS',
     available: false,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
   {
     id: 'item-tiramisu',
@@ -79,6 +89,7 @@ const SEED_ITEMS: MenuItem[] = [
     price: 7,
     categoryPill: 'DESSERT',
     available: true,
+    imageUrl: DEFAULT_ITEM_IMAGE,
   },
 ]
 
