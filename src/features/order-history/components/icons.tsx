@@ -35,7 +35,7 @@ export function DeliveryIcon({ className = 'h-4 w-4' }: IconProps) {
         d="M3 7h11v8H3V7zm11 2h4l3 3v3h-7V9zM7 17a1.5 1.5 0 1 0 0 .01M17 17a1.5 1.5 0 1 0 0 .01"
         stroke="currentColor"
         strokeWidth="1.8"
-        strokeLinecap="round"
+        strokeLinecap="round"   
         strokeLinejoin="round"
       />
     </svg>
