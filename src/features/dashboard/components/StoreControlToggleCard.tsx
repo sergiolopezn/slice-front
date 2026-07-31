@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
 import { Card } from '@/shared/components/ui'
+import type { ReactNode } from 'react'
 import type { StoreControl, StoreControlChannel } from '../types/dashboard'
 import { PauseIcon, TruckIcon, UtensilsIcon } from './icons'
 
@@ -23,7 +23,10 @@ export function StoreControlToggleCard({
   const switchId = `store-control-${control.id}`
 
   return (
-    <Card className="flex items-center justify-between gap-4 p-4" data-testid={`store-control-${control.id}`}>
+    <Card
+      className="flex-row items-center justify-between gap-4 p-4"
+      data-testid={`store-control-${control.id}`}
+    >
       <div className="flex items-center gap-3">
         <span className="text-text-muted">{iconMap[control.id]}</span>
         <label htmlFor={switchId} className="text-sm font-medium text-white">
