@@ -1,4 +1,37 @@
-# React + TypeScript + Vite
+# SliceOS Frontend
+
+React + TypeScript + Vite app for the SliceOS kitchen and manager UI.
+
+## API configuration
+
+The frontend reads the backend base URL from `VITE_API_BASE_URL`.
+
+```bash
+cp .env.example .env.local
+npm run dev
+```
+
+| Target | `VITE_API_BASE_URL` |
+| --- | --- |
+| Azure dev | `https://func-sliceos-api-dev-5663.azurewebsites.net` |
+| Local Functions | `http://localhost:7071` |
+
+If unset, the client defaults to `http://localhost:7071`.
+
+### CORS when using the Azure dev API from localhost
+
+With `npm run dev`, the app runs at **http://localhost:5173** and calls the Azure API directly from the browser. That is a cross-origin request, so the Function App must allow `http://localhost:5173` in **CORS**:
+
+1. Azure Portal → Function App `func-sliceos-api-dev-5663` → **CORS**
+2. Add `http://localhost:5173` to allowed origins and save
+
+Backend infra sets `Cors__AllowedOrigin` / App Service CORS to `http://localhost:5173` for dev deploys (`backend/infra/main.bicep`). If you still see `Access-Control-Allow-Origin` errors, confirm the deployed app matches that setting or redeploy infra.
+
+**Symptoms:** Network tab shows `(blocked:cors)` or preflight `OPTIONS` failures on `/api/*` routes.
+
+---
+
+## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
