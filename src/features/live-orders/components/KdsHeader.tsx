@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import { Badge } from '@/shared/components/ui'
 
 type KdsHeaderProps = {
-  urgentCount: number
+  newCount: number
   inOvenCount: number
 }
 
-export function KdsHeader({ urgentCount, inOvenCount }: KdsHeaderProps) {
+export function KdsHeader({ newCount, inOvenCount }: KdsHeaderProps) {
   return (
     <header
       className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-surface-border pb-4"
@@ -17,7 +17,7 @@ export function KdsHeader({ urgentCount, inOvenCount }: KdsHeaderProps) {
           Station: Kitchen-A
         </p>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="rush">{urgentCount} Urgent</Badge>
+          <Badge variant="rush">{newCount} New</Badge>
           <Badge variant="prep">{inOvenCount} In Oven</Badge>
         </div>
       </div>

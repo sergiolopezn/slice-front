@@ -2,11 +2,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '@/app/router'
 import { LiveOrdersDashboard } from '@/features/live-orders'
-import { resetOrdersForTests } from '@/features/live-orders/api/mockOrdersApi'
 import { useItemCompletion } from '@/features/live-orders/hooks/useItemCompletion'
+import {
+  installLiveOrdersFetchMock,
+  resetLiveOrdersForTests,
+} from './liveOrdersFetchMock'
 
 function createTestQueryClient() {
   return new QueryClient({
@@ -44,11 +47,13 @@ function mainContent() {
 }
 
 beforeEach(() => {
-  resetOrdersForTests()
+  resetLiveOrdersForTests()
+  installLiveOrdersFetchMock()
   useItemCompletion.setState({ completed: {} })
 })
 
 afterEach(() => {
+  vi.unstubAllGlobals()
   cleanup()
 })
 
@@ -57,7 +62,7 @@ describe('LiveOrdersDashboard', () => {
     renderDashboard()
 
     await waitFor(() => {
-      expect(screen.getByText(/1 urgent/i)).toBeInTheDocument()
+      expect(screen.getByText(/1 new/i)).toBeInTheDocument()
     })
 
     expect(screen.getByTestId('kds-header')).toBeInTheDocument()
@@ -72,8 +77,8 @@ describe('LiveOrdersDashboard', () => {
       expect(screen.getByTestId('ticket-ord-402')).toBeInTheDocument()
     })
 
-    const urgentBanner = screen.getByText('#402').closest('div')
-    expect(urgentBanner?.className).toContain('bg-status-urgent-red')
+    const newBanner = screen.getByText('#402').closest('div')
+    expect(newBanner?.className).toContain('bg-status-urgent-red')
 
     const inOvenBanner = screen.getByText('#398').closest('div')
     expect(inOvenBanner?.className).toContain('bg-status-prep-amber')
@@ -110,7 +115,7 @@ describe('LiveOrdersDashboard', () => {
     expect(screen.getByRole('button', { name: /complete/i })).toBeInTheDocument()
   })
 
-  it('advances urgent order to in-oven without removing the ticket', async () => {
+  it('advances new order to in-prep without removing the ticket', async () => {
     const user = userEvent.setup()
     renderDashboard()
 
@@ -118,11 +123,11 @@ describe('LiveOrdersDashboard', () => {
       expect(screen.getByTestId('ticket-ord-402')).toBeInTheDocument()
     })
 
-    const urgentCard = screen.getByTestId('ticket-ord-402')
-    await user.click(within(urgentCard).getByRole('button', { name: /bump order/i }))
+    const newCard = screen.getByTestId('ticket-ord-402')
+    await user.click(within(newCard).getByRole('button', { name: /bump order/i }))
 
     await waitFor(() => {
-      expect(within(urgentCard).getByRole('button', { name: /check temp/i })).toBeInTheDocument()
+      expect(within(newCard).getByRole('button', { name: /to oven/i })).toBeInTheDocument()
     })
   })
 
@@ -156,6 +161,37 @@ describe('LiveOrdersDashboard', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('ticket-ord-390')).not.toBeInTheDocument()
     })
+  })
+
+  it('rolls back optimistic update and shows backend message on 409 conflict', async () => {
+    const user = userEvent.setup()
+    installLiveOrdersFetchMock({
+      patchHandler: () =>
+        new Response(
+          JSON.stringify({
+            code: 'INVALID_TRANSITION',
+            message: "Order 402 is currently 'New' and cannot transition to 'Completed'.",
+          }),
+          { status: 409, headers: { 'Content-Type': 'application/json' } },
+        ),
+    })
+
+    renderDashboard()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ticket-ord-402')).toBeInTheDocument()
+    })
+
+    const newCard = screen.getByTestId('ticket-ord-402')
+    await user.click(within(newCard).getByRole('button', { name: /bump order/i }))
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/cannot transition to 'Completed'/i),
+      ).toBeInTheDocument()
+    })
+
+    expect(within(newCard).getByRole('button', { name: /bump order/i })).toBeInTheDocument()
   })
 
   it('renders on the /live-orders route', async () => {

@@ -1,23 +1,24 @@
 import { Button, type ButtonVariant } from '@/shared/components/ui'
-import type { OrderPhase } from '../types/order'
+import type { OrderStatus } from '../types/order'
 
 type StatusActionButtonProps = {
-  status: OrderPhase
+  status: OrderStatus
   onAction: () => void
   disabled?: boolean
 }
 
 const actionConfig: Record<
-  Exclude<OrderPhase, 'PENDING_REVIEW'>,
+  Exclude<OrderStatus, 'Completed' | 'Cancelled'>,
   { label: string; variant: ButtonVariant }
 > = {
-  URGENT: { label: 'Bump Order', variant: 'bump' },
-  IN_OVEN: { label: 'Check Temp', variant: 'check-temp' },
-  READY: { label: 'Complete', variant: 'complete' },
+  New: { label: 'Bump Order', variant: 'bump' },
+  InPrep: { label: 'To Oven', variant: 'check-temp' },
+  InOven: { label: 'Check Temp', variant: 'check-temp' },
+  Ready: { label: 'Complete', variant: 'complete' },
 }
 
 export function StatusActionButton({ status, onAction, disabled }: StatusActionButtonProps) {
-  if (status === 'PENDING_REVIEW') return null
+  if (status === 'Completed' || status === 'Cancelled') return null
 
   const config = actionConfig[status]
 

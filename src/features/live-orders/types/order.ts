@@ -1,4 +1,6 @@
-export type OrderPhase = 'URGENT' | 'IN_OVEN' | 'READY' | 'PENDING_REVIEW'
+import type { OrderStatus } from '@/shared/api'
+
+export type { OrderStatus }
 
 export type OrderLineItem = {
   id: string
@@ -19,35 +21,45 @@ export type OrderTicket = {
   id: string
   orderNumber: string
   timer: string
-  status: OrderPhase
+  status: OrderStatus
+  createdAt: string
   metadata: OrderMetadata
   items: OrderLineItem[]
 }
 
-export function phaseToHeaderStatus(
-  phase: OrderPhase,
+export function statusToHeaderStatus(
+  status: OrderStatus,
 ): 'rush' | 'prep' | 'ready' | 'pending' {
-  switch (phase) {
-    case 'URGENT':
+  switch (status) {
+    case 'New':
       return 'rush'
-    case 'IN_OVEN':
+    case 'InPrep':
+    case 'InOven':
       return 'prep'
-    case 'READY':
+    case 'Ready':
       return 'ready'
-    case 'PENDING_REVIEW':
+    case 'Completed':
+    case 'Cancelled':
       return 'pending'
   }
 }
 
-export function nextPhase(phase: OrderPhase): OrderPhase | null {
-  switch (phase) {
-    case 'URGENT':
-      return 'IN_OVEN'
-    case 'IN_OVEN':
-      return 'READY'
-    case 'READY':
-      return null
-    case 'PENDING_REVIEW':
+export function nextOrderStatus(status: OrderStatus): OrderStatus | null {
+  switch (status) {
+    case 'New':
+      return 'InPrep'
+    case 'InPrep':
+      return 'InOven'
+    case 'InOven':
+      return 'Ready'
+    case 'Ready':
+      return 'Completed'
+    case 'Completed':
+    case 'Cancelled':
       return null
   }
+}
+
+export function countByStatus(orders: OrderTicket[], status: OrderStatus): number {
+  return orders.filter((order) => order.status === status).length
 }

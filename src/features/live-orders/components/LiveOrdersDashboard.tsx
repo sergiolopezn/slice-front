@@ -1,5 +1,5 @@
-import { countByPhase } from '../api/mockOrdersApi'
-import { useAdvanceOrderStatus, useOrdersQuery } from '../hooks/useOrdersQuery'
+import { getAdvanceErrorMessage, useAdvanceOrderStatus, useOrdersQuery } from '../hooks/useOrdersQuery'
+import { countByStatus, nextOrderStatus } from '../types/order'
 import { KdsHeader } from './KdsHeader'
 import { OrderGrid } from './OrderGrid'
 
@@ -7,14 +7,20 @@ export function LiveOrdersDashboard() {
   const { data: orders = [], isLoading, isError, refetch } = useOrdersQuery()
   const advanceStatus = useAdvanceOrderStatus()
 
-  const urgentCount = countByPhase(orders, 'URGENT')
-  const inOvenCount = countByPhase(orders, 'IN_OVEN')
+  const newCount = countByStatus(orders, 'New')
+  const inOvenCount = countByStatus(orders, 'InOven')
 
   return (
     <main aria-label="Live orders page" className="min-h-screen bg-bg-app p-6">
       <h1 className="sr-only">Live orders</h1>
 
-      <KdsHeader urgentCount={urgentCount} inOvenCount={inOvenCount} />
+      <KdsHeader newCount={newCount} inOvenCount={inOvenCount} />
+
+      {advanceStatus.isError ? (
+        <p role="alert" className="mb-4 text-sm text-status-urgent-red">
+          {getAdvanceErrorMessage(advanceStatus.error)}
+        </p>
+      ) : null}
 
       {isLoading ? (
         <p className="text-text-muted">Loading orders…</p>
@@ -34,9 +40,15 @@ export function LiveOrdersDashboard() {
       ) : (
         <OrderGrid
           orders={orders}
-          onAdvance={(orderId) => advanceStatus.mutate(orderId)}
+          onAdvance={(orderId) => {
+            const order = orders.find((entry) => entry.id === orderId)
+            const nextStatus = order ? nextOrderStatus(order.status) : null
+            if (nextStatus) {
+              advanceStatus.mutate({ orderId, nextStatus })
+            }
+          }}
           advancingOrderId={
-            advanceStatus.isPending ? (advanceStatus.variables ?? null) : null
+            advanceStatus.isPending ? (advanceStatus.variables?.orderId ?? null) : null
           }
         />
       )}
