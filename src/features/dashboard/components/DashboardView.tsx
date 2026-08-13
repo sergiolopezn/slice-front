@@ -1,9 +1,9 @@
 import { useDashboardQuery } from '../hooks/useDashboardQuery'
-import { useStoreControlToggle } from '../hooks/useStoreControls'
+import { getStorePauseErrorMessage, useStorePause } from '../hooks/useStorePause'
 import { ActivityFeed } from './ActivityFeed'
 import { KpiSummaryRow } from './KpiSummaryRow'
 import { StationCapacitySection } from './StationCapacityCard'
-import { StoreControlsPanel } from './StoreControlToggleCard'
+import { StorePauseCard } from './StorePauseCard'
 
 function scrollToStationCapacity() {
   document.getElementById('station-capacity-section')?.scrollIntoView({ behavior: 'smooth' })
@@ -11,7 +11,7 @@ function scrollToStationCapacity() {
 
 export function DashboardView() {
   const { data, isLoading, isError, refetch } = useDashboardQuery()
-  const toggleControl = useStoreControlToggle()
+  const storePause = useStorePause()
 
   if (isLoading) {
     return (
@@ -42,18 +42,22 @@ export function DashboardView() {
     <main aria-label="Dashboard page" className="min-h-screen bg-bg-app p-6">
       <h1 className="text-2xl font-bold tracking-tight text-white">Dashboard</h1>
 
+      {storePause.isError ? (
+        <p role="alert" className="mt-4 text-sm text-status-urgent-red">
+          {getStorePauseErrorMessage(storePause.error)}
+        </p>
+      ) : null}
+
       <div className="mt-6 space-y-6">
         <KpiSummaryRow kpis={data.kpis} onReviewCapacity={scrollToStationCapacity} />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-6">
             <StationCapacitySection stations={data.stations} />
-            <StoreControlsPanel
-              controls={data.storeControls}
-              onToggle={(channel, enabled) =>
-                toggleControl.mutate({ channel, enabled })
-              }
-              isUpdating={toggleControl.isPending}
+            <StorePauseCard
+              isPaused={data.isPaused}
+              disabled={storePause.isPending}
+              onSubmit={(isPaused, reason) => storePause.mutate({ isPaused, reason })}
             />
           </div>
 

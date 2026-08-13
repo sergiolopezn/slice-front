@@ -23,28 +23,19 @@ export type StationCapacity = {
   capacityPercent: number
 }
 
-export type StoreControlChannel = 'telegram' | 'dine-in' | 'delivery'
-
-export type StoreControl = {
-  id: StoreControlChannel
-  label: string
-  enabled: boolean
-}
-
-export type ActivityEventType = 'order' | 'system' | 'alert' | 'refund'
+export type ActivityEventType = 'system'
 
 export type ActivityEvent = {
   id: string
   type: ActivityEventType
   message: string
   timestamp: string
-  metadata?: string
 }
 
 export type DashboardSnapshot = {
   kpis: KpiMetric[]
   stations: StationCapacity[]
-  storeControls: StoreControl[]
+  isPaused: boolean
   activity: ActivityEvent[]
 }
 
