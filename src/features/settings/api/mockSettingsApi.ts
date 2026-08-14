@@ -1,7 +1,6 @@
 import type {
   ChimeOption,
   DaySchedule,
-  NotificationTrigger,
   PauseDuration,
   StoreSettingsSnapshot,
   Weekday,
@@ -31,11 +30,8 @@ const SEED_SETTINGS: StoreSettingsSnapshot = {
   botConnected: true,
   webhookUrl: 'https://api.sliceos.local/webhooks/telegram',
   webhookLatencyMs: 42,
-  notificationTriggers: {
-    'order-accepted': true,
-    'in-oven': true,
-    ready: true,
-  },
+  adminTelegramHandle: '@MarioPizzaOwner',
+  adminTelegramChatId: '987654321',
   lastTestNotificationAt: null,
   chime: 'loud-chime',
   delayAlertMinutes: 12,
@@ -51,7 +47,6 @@ function cloneSnapshot(): StoreSettingsSnapshot {
   return {
     ...settings,
     weeklySchedule: settings.weeklySchedule.map((day) => ({ ...day })),
-    notificationTriggers: { ...settings.notificationTriggers },
   }
 }
 
@@ -94,15 +89,16 @@ export async function updateDeliverySettings(updates: {
   return cloneSnapshot()
 }
 
-export async function updateNotificationTrigger(
-  trigger: NotificationTrigger,
-  enabled: boolean,
+export async function updateAdminTelegramHandle(
+  handle: string,
 ): Promise<StoreSettingsSnapshot> {
   await delay(LATENCY_MS)
-  settings.notificationTriggers = {
-    ...settings.notificationTriggers,
-    [trigger]: enabled,
+
+  if (settings.adminTelegramChatId !== null) {
+    return cloneSnapshot()
   }
+
+  settings.adminTelegramHandle = handle
   return cloneSnapshot()
 }
 
@@ -123,6 +119,11 @@ export async function updateKitchenAlerts(updates: {
 
 export function resetSettingsForTests() {
   settings = structuredClone(SEED_SETTINGS)
+}
+
+export function setAdminUnlinkedForTests() {
+  settings.adminTelegramChatId = null
+  settings.adminTelegramHandle = ''
 }
 
 export { SEED_SETTINGS }

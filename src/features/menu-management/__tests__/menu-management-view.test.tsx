@@ -2,10 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '@/app/router'
-import { resetMenuForTests } from '@/features/menu-management/api/mockMenuApi'
 import { MenuManagementView } from '@/features/menu-management'
+import {
+  installMenuFetchMock,
+  resetMenuForTests,
+} from '@/features/menu-management/__tests__/menuFetchMock'
 
 function createTestQueryClient() {
   return new QueryClient({
@@ -42,10 +45,12 @@ function mainContent() {
 
 beforeEach(() => {
   resetMenuForTests()
+  installMenuFetchMock()
 })
 
 afterEach(() => {
   cleanup()
+  vi.unstubAllGlobals()
 })
 
 describe('MenuManagementView', () => {
@@ -160,6 +165,78 @@ describe('MenuManagementView', () => {
 
     const pepperoniRow = screen.getByTestId('topping-row-top-pepperoni')
     expect(within(pepperoniRow).getByTestId('sync-badge-synced')).toBeInTheDocument()
+  })
+
+  it('rolls back item availability toggle when the API returns 404', async () => {
+    installMenuFetchMock({
+      itemAvailabilityHandler: (itemId) =>
+        new Response(
+          JSON.stringify({
+            code: 'MENU_ITEM_NOT_FOUND',
+            message: `Menu item '${itemId}' was not found.`,
+          }),
+          { status: 404, headers: { 'Content-Type': 'application/json' } },
+        ),
+    })
+
+    const user = userEvent.setup()
+    renderMenuView()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('menu-item-item-margherita')).toBeInTheDocument()
+    })
+
+    const margheritaToggle = within(screen.getByTestId('menu-item-item-margherita')).getByRole(
+      'switch',
+      { name: 'Margherita availability' },
+    )
+
+    await user.click(margheritaToggle)
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/was not found/i)
+    })
+
+    expect(margheritaToggle).toHaveAttribute('aria-checked', 'true')
+  })
+
+  it('rolls back topping stock toggle when the API returns 404', async () => {
+    installMenuFetchMock({
+      toppingStockHandler: (toppingId) =>
+        new Response(
+          JSON.stringify({
+            code: 'TOPPING_NOT_FOUND',
+            message: `Topping '${toppingId}' was not found.`,
+          }),
+          { status: 404, headers: { 'Content-Type': 'application/json' } },
+        ),
+    })
+
+    const user = userEvent.setup()
+    renderMenuView()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('category-tabs')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByTestId('category-tab-toppings'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('topping-row-top-pepperoni')).toBeInTheDocument()
+    })
+
+    const pepperoniToggle = within(screen.getByTestId('topping-row-top-pepperoni')).getByRole(
+      'switch',
+      { name: /extra pepperoni stock/i },
+    )
+
+    await user.click(pepperoniToggle)
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/was not found/i)
+    })
+
+    expect(pepperoniToggle).toHaveAttribute('aria-checked', 'true')
   })
 
   it('renders on the /menu route', async () => {

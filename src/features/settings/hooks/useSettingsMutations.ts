@@ -1,19 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   sendTestNotification,
+  updateAdminTelegramHandle,
   updateDaySchedule,
   updateDeliverySettings,
   updateKitchenAlerts,
-  updateNotificationTrigger,
   updateStorePause,
 } from '../api/mockSettingsApi'
-import type {
-  ChimeOption,
-  NotificationTrigger,
-  PauseDuration,
-  StoreSettingsSnapshot,
-  Weekday,
-} from '../types/settings'
+import type { ChimeOption, PauseDuration, StoreSettingsSnapshot, Weekday } from '../types/settings'
 import { SETTINGS_QUERY_KEY } from './useSettingsQuery'
 
 function useSettingsMutation<TVariables>(
@@ -94,16 +88,12 @@ export function useDeliverySettingsMutation() {
   )
 }
 
-export function useNotificationTriggerMutation() {
+export function useAdminTelegramHandleMutation() {
   return useSettingsMutation(
-    ({ trigger, enabled }: { trigger: NotificationTrigger; enabled: boolean }) =>
-      updateNotificationTrigger(trigger, enabled),
-    (previous, { trigger, enabled }) => ({
+    (handle: string) => updateAdminTelegramHandle(handle),
+    (previous, handle) => ({
       ...previous,
-      notificationTriggers: {
-        ...previous.notificationTriggers,
-        [trigger]: enabled,
-      },
+      adminTelegramHandle: handle,
     }),
   )
 }

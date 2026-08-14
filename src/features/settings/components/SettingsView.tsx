@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
+  useAdminTelegramHandleMutation,
   useDayScheduleMutation,
   useDeliverySettingsMutation,
   useKitchenAlertsMutation,
-  useNotificationTriggerMutation,
   useSendTestNotificationMutation,
   useStorePauseMutation,
 } from '../hooks/useSettingsMutations'
@@ -11,14 +11,14 @@ import { useSettingsQuery } from '../hooks/useSettingsQuery'
 import { DeliveryFulfillmentCard } from './DeliveryFulfillmentCard'
 import { KitchenAlertsCard } from './KitchenAlertsCard'
 import { StoreOperationsCard } from './StoreOperationsCard'
-import { TelegramBotConfigCard } from './TelegramBotConfigCard'
+import { TelegramIntegrationCard } from './TelegramIntegrationCard'
 
 export function SettingsView() {
   const { data, isLoading, isError, refetch } = useSettingsQuery()
   const storePause = useStorePauseMutation()
   const daySchedule = useDayScheduleMutation()
   const deliverySettings = useDeliverySettingsMutation()
-  const notificationTrigger = useNotificationTriggerMutation()
+  const adminTelegramHandle = useAdminTelegramHandleMutation()
   const sendTestNotification = useSendTestNotificationMutation()
   const kitchenAlerts = useKitchenAlertsMutation()
   const [testSuccessMessage, setTestSuccessMessage] = useState<string | null>(null)
@@ -27,7 +27,7 @@ export function SettingsView() {
     storePause.isPending ||
     daySchedule.isPending ||
     deliverySettings.isPending ||
-    notificationTrigger.isPending ||
+    adminTelegramHandle.isPending ||
     sendTestNotification.isPending ||
     kitchenAlerts.isPending
 
@@ -88,20 +88,19 @@ export function SettingsView() {
         </div>
 
         <div className="space-y-6">
-          <TelegramBotConfigCard
+          <TelegramIntegrationCard
             settings={{
               botHandle: data.botHandle,
               botConnected: data.botConnected,
               webhookUrl: data.webhookUrl,
               webhookLatencyMs: data.webhookLatencyMs,
-              notificationTriggers: data.notificationTriggers,
+              adminTelegramHandle: data.adminTelegramHandle,
+              adminTelegramChatId: data.adminTelegramChatId,
               lastTestNotificationAt: data.lastTestNotificationAt,
             }}
             disabled={isMutating}
             testSuccessMessage={testSuccessMessage}
-            onTriggerChange={(trigger, enabled) =>
-              notificationTrigger.mutate({ trigger, enabled })
-            }
+            onAdminHandleChange={(handle) => adminTelegramHandle.mutate(handle)}
             onSendTest={() => {
               setTestSuccessMessage(null)
               sendTestNotification.mutate(undefined, {

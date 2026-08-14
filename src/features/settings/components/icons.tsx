@@ -51,3 +51,17 @@ export function TruckIcon({ className = '' }: IconProps) {
     </svg>
   )
 }
+
+export function LinkIcon({ className = '' }: IconProps) {
+  return (
+    <svg className={`${iconBaseClass} ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M10 13a3 3 0 0 0 4.24 0l2.12-2.12a3 3 0 1 0-4.24-4.24L10.6 8.36M14 11a3 3 0 0 0-4.24 0L7.64 13.12a3 3 0 1 0 4.24 4.24L13.4 15.64"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

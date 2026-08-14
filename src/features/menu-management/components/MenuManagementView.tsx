@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { getMenuMutationErrorMessage } from '../api/getMenuMutationErrorMessage'
 import { useMenuItemAvailability } from '../hooks/useMenuItemAvailability'
 import { useMenuQuery } from '../hooks/useMenuQuery'
 import { useQuick86Toggle } from '../hooks/useQuick86Toggle'
@@ -24,6 +25,9 @@ export function MenuManagementView() {
 
   const isMutating =
     quick86Toggle.isPending || itemAvailability.isPending || toppingStockToggle.isPending
+
+  const mutationError =
+    quick86Toggle.error ?? itemAvailability.error ?? toppingStockToggle.error
 
   if (isLoading) {
     return (
@@ -55,6 +59,12 @@ export function MenuManagementView() {
   return (
     <main aria-label="Menu management page" className="min-h-screen bg-bg-app p-6">
       <h1 className="text-2xl font-bold tracking-tight text-white">Menu management</h1>
+
+      {mutationError ? (
+        <p role="alert" className="mt-4 text-sm text-status-urgent-red">
+          {getMenuMutationErrorMessage(mutationError)}
+        </p>
+      ) : null}
 
       <div className="mt-6 space-y-6">
         <CategoryTabs activeTab={activeTab} onTabChange={setActiveTab} />

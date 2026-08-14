@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { updateMenuItemAvailability } from '../api/mockMenuApi'
+import { patchItemAvailability } from '@/shared/api'
 import type { MenuSnapshot } from '../types/menu'
 import { MENU_QUERY_KEY } from './useMenuQuery'
 
@@ -8,7 +8,7 @@ export function useMenuItemAvailability() {
 
   return useMutation({
     mutationFn: ({ itemId, available }: { itemId: string; available: boolean }) =>
-      updateMenuItemAvailability(itemId, available),
+      patchItemAvailability(itemId, { isAvailable: available }),
     onMutate: async ({ itemId, available }) => {
       await queryClient.cancelQueries({ queryKey: MENU_QUERY_KEY })
 

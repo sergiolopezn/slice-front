@@ -6,6 +6,12 @@ export {
   patchOrderStatus,
 } from './orders'
 export { fetchActivity, fetchMetrics, postStoreStatus } from './dashboard'
+export {
+  fetchMenuOverview,
+  fetchQuick86List,
+  patchItemAvailability,
+  patchToppingStock,
+} from './menu'
 export type {
   ActivityFeedEntry,
   ActivityFeedResponse,
@@ -22,3 +28,13 @@ export type {
   OrderStatus,
   PatchOrderStatusRequest,
 } from './types/orders'
+export type {
+  MenuItemDto,
+  MenuOverview,
+  PatchItemAvailabilityRequest,
+  PatchToppingStockRequest,
+  Quick86Entry,
+  Quick86ListResponse,
+  TelegramSyncStatus,
+  ToppingDto,
+} from './types/menu'

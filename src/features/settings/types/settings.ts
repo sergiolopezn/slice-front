@@ -19,10 +19,6 @@ export type DaySchedule = {
 
 export type ChimeOption = 'loud-chime' | 'buzzer' | 'bell' | 'mute'
 
-export type NotificationTrigger = 'order-accepted' | 'in-oven' | 'ready'
-
-export type NotificationTriggers = Record<NotificationTrigger, boolean>
-
 export type StoreSettingsSnapshot = {
   storePaused: boolean
   pauseDuration: PauseDuration
@@ -35,7 +31,8 @@ export type StoreSettingsSnapshot = {
   botConnected: boolean
   webhookUrl: string
   webhookLatencyMs: number
-  notificationTriggers: NotificationTriggers
+  adminTelegramHandle: string
+  adminTelegramChatId: string | null
   lastTestNotificationAt: string | null
   chime: ChimeOption
   delayAlertMinutes: number
@@ -54,9 +51,3 @@ export const CHIME_OPTIONS: { value: ChimeOption; label: string }[] = [
   { value: 'bell', label: 'Bell' },
   { value: 'mute', label: 'Mute' },
 ]
-
-export const NOTIFICATION_TRIGGER_LABELS: Record<NotificationTrigger, string> = {
-  'order-accepted': 'Order Accepted',
-  'in-oven': 'In Oven',
-  ready: 'Ready',
-}
