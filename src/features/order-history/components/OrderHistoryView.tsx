@@ -1,39 +1,43 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useOrderHistoryQuery } from '../hooks/useOrderHistoryQuery'
-import {
-  filterOrders,
-  getStatusCounts,
-  paginateOrders,
-  type OrderStatusFilter,
-} from '../types/orderHistory'
+import type { OrderHistoryListItem, OrderStatusFilter } from '../types/orderHistory'
 import { SearchIcon } from './icons'
 import { OrderDetailDrawer } from './OrderDetailDrawer'
 import { OrderFilterTabs } from './OrderFilterTabs'
 import { OrderHistoryTable } from './OrderHistoryTable'
 
 const PAGE_SIZE = 10
+const SEARCH_DEBOUNCE_MS = 300
 
 export function OrderHistoryView() {
-  const { data, isLoading, isError, refetch } = useOrderHistoryQuery()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>('all')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
   const [page, setPage] = useState(1)
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
 
-  const filteredOrders = useMemo(() => {
-    if (!data) return []
-    return filterOrders(data.orders, searchQuery, statusFilter)
-  }, [data, searchQuery, statusFilter])
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchInput)
+      setPage(1)
+    }, SEARCH_DEBOUNCE_MS)
 
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE))
-  const currentPage = Math.min(page, totalPages)
+    return () => window.clearTimeout(timer)
+  }, [searchInput])
 
-  const paginatedOrders = useMemo(
-    () => paginateOrders(filteredOrders, currentPage, PAGE_SIZE),
-    [filteredOrders, currentPage],
-  )
+  const { data, isLoading, isError, refetch } = useOrderHistoryQuery({
+    searchTerm: debouncedSearch,
+    status: statusFilter,
+    startDate,
+    endDate,
+    page,
+    pageSize: PAGE_SIZE,
+  })
 
-  const selectedOrder = data?.orders.find((order) => order.id === selectedOrderId) ?? null
+  const selectedSummary: OrderHistoryListItem | null =
+    data?.orders.find((order) => order.id === selectedOrderId) ?? null
 
   useEffect(() => {
     if (!selectedOrderId) return
@@ -73,9 +77,10 @@ export function OrderHistoryView() {
     )
   }
 
-  const statusCounts = getStatusCounts(data.orders)
-  const rangeStart = filteredOrders.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
-  const rangeEnd = Math.min(currentPage * PAGE_SIZE, filteredOrders.length)
+  const totalPages = Math.max(1, data.totalPages)
+  const currentPage = Math.min(page, totalPages)
+  const rangeStart = data.totalEntries === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
+  const rangeEnd = Math.min(currentPage * PAGE_SIZE, data.totalEntries)
 
   return (
     <main aria-label="Order history page" className="min-h-screen bg-bg-app p-6">
@@ -88,11 +93,8 @@ export function OrderHistoryView() {
             <SearchIcon className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="search"
-              value={searchQuery}
-              onChange={(event) => {
-                setSearchQuery(event.target.value)
-                setPage(1)
-              }}
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Search by Order ID or Customer..."
               data-testid="order-history-search"
               className="min-h-12 w-full rounded-xl border border-surface-border bg-surface-card py-3 pl-12 pr-4 text-sm text-white placeholder:text-text-dim focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -103,11 +105,21 @@ export function OrderHistoryView() {
             <input
               type="date"
               aria-label="Start date"
+              value={startDate}
+              onChange={(event) => {
+                setStartDate(event.target.value)
+                setPage(1)
+              }}
               className="min-h-12 rounded-xl border border-surface-border bg-surface-card px-4 text-sm text-text-muted"
             />
             <input
               type="date"
               aria-label="End date"
+              value={endDate}
+              onChange={(event) => {
+                setEndDate(event.target.value)
+                setPage(1)
+              }}
               className="min-h-12 rounded-xl border border-surface-border bg-surface-card px-4 text-sm text-text-muted"
             />
           </div>
@@ -115,25 +127,21 @@ export function OrderHistoryView() {
 
         <OrderFilterTabs
           activeFilter={statusFilter}
-          counts={statusCounts}
-          displayTotalCount={data.displayTotalCount}
+          totalEntries={data.totalEntries}
           onFilterChange={(filter) => {
             setStatusFilter(filter)
             setPage(1)
           }}
         />
 
-        <OrderHistoryTable
-          orders={paginatedOrders}
-          onViewDetails={setSelectedOrderId}
-        />
+        <OrderHistoryTable orders={data.orders} onViewDetails={setSelectedOrderId} />
 
         <div
           className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
           data-testid="order-history-pagination"
         >
           <p className="text-sm text-text-muted">
-            Showing {rangeStart} to {rangeEnd} of {filteredOrders.length.toLocaleString()} entries
+            Showing {rangeStart} to {rangeEnd} of {data.totalEntries.toLocaleString()} entries
           </p>
 
           <div className="flex gap-2">
@@ -157,8 +165,12 @@ export function OrderHistoryView() {
         </div>
       </div>
 
-      {selectedOrder ? (
-        <OrderDetailDrawer order={selectedOrder} onClose={() => setSelectedOrderId(null)} />
+      {selectedOrderId && selectedSummary ? (
+        <OrderDetailDrawer
+          orderId={selectedOrderId}
+          summary={selectedSummary}
+          onClose={() => setSelectedOrderId(null)}
+        />
       ) : null}
     </main>
   )

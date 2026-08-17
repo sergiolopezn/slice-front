@@ -2,22 +2,19 @@ import type { OrderStatusFilter } from '../types/orderHistory'
 
 type OrderFilterTabsProps = {
   activeFilter: OrderStatusFilter
-  counts: Record<OrderStatusFilter, number>
-  displayTotalCount: number
+  totalEntries: number
   onFilterChange: (filter: OrderStatusFilter) => void
 }
 
-const tabs: { id: OrderStatusFilter; label: string; useDisplayTotal?: boolean }[] = [
-  { id: 'all', label: 'All Orders', useDisplayTotal: true },
+const tabs: { id: OrderStatusFilter; label: string }[] = [
+  { id: 'all', label: 'All Orders' },
   { id: 'completed', label: 'Completed' },
   { id: 'cancelled', label: 'Cancelled' },
-  { id: 'refunded', label: 'Refunded' },
 ]
 
 export function OrderFilterTabs({
   activeFilter,
-  counts,
-  displayTotalCount,
+  totalEntries,
   onFilterChange,
 }: OrderFilterTabsProps) {
   return (
@@ -25,7 +22,6 @@ export function OrderFilterTabs({
       <ul className="flex flex-wrap gap-2">
         {tabs.map((tab) => {
           const isActive = activeFilter === tab.id
-          const count = tab.useDisplayTotal ? displayTotalCount : counts[tab.id]
 
           return (
             <li key={tab.id}>
@@ -41,7 +37,8 @@ export function OrderFilterTabs({
                     : 'text-text-muted hover:bg-status-idle-gray hover:text-white'
                 }`}
               >
-                {tab.label} ({count.toLocaleString()})
+                {tab.label}
+                {isActive ? ` (${totalEntries.toLocaleString()})` : ''}
               </button>
             </li>
           )

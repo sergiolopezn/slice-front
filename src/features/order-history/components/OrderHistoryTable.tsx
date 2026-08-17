@@ -1,10 +1,10 @@
-import type { HistoricalOrder } from '../types/orderHistory'
+import type { OrderHistoryListItem } from '../types/orderHistory'
 import { formatOrderTotal } from '../types/orderHistory'
 import { DeliveryTypeBadge } from './DeliveryTypeBadge'
 import { OrderStatusBadge } from './OrderStatusBadge'
 
 type OrderHistoryTableProps = {
-  orders: HistoricalOrder[]
+  orders: OrderHistoryListItem[]
   onViewDetails: (orderId: string) => void
 }
 
@@ -32,7 +32,6 @@ export function OrderHistoryTable({ orders, onViewDetails }: OrderHistoryTablePr
               'DELIVERY TYPE',
               'ITEMS SUMMARY',
               'TOTAL',
-              'PAYMENT',
               'STATUS',
               'ACTIONS',
             ].map((header) => (
@@ -59,11 +58,10 @@ export function OrderHistoryTable({ orders, onViewDetails }: OrderHistoryTablePr
               <td className="px-4 py-4">
                 <DeliveryTypeBadge type={order.deliveryType} />
               </td>
-              <td className="px-4 py-4 text-text-muted">{order.itemsSummary}</td>
+              <td className="whitespace-pre-line px-4 py-4 text-text-muted">{order.itemsSummary}</td>
               <td className="px-4 py-4 font-mono font-bold text-status-prep-amber">
                 {formatOrderTotal(order.total)}
               </td>
-              <td className="px-4 py-4 text-text-muted">{order.paymentLabel}</td>
               <td className="px-4 py-4">
                 <OrderStatusBadge status={order.status} />
               </td>

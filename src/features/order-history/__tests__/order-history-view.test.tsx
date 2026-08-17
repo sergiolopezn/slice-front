@@ -2,9 +2,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from '@/app/router'
-import { resetOrderHistoryForTests } from '@/features/order-history/api/mockOrderHistoryApi'
+import {
+  installOrderHistoryFetchMock,
+  resetOrderHistoryForTests,
+} from '@/features/order-history/__tests__/orderHistoryFetchMock'
 import { OrderHistoryView } from '@/features/order-history'
 
 function createTestQueryClient() {
@@ -42,9 +45,12 @@ function mainContent() {
 
 beforeEach(() => {
   resetOrderHistoryForTests()
+  installOrderHistoryFetchMock()
+  vi.useFakeTimers({ shouldAdvanceTime: true })
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   cleanup()
 })
 
@@ -61,15 +67,14 @@ describe('OrderHistoryView', () => {
     expect(screen.getByText('Maria Lopez')).toBeInTheDocument()
 
     await user.type(screen.getByTestId('order-history-search'), 'Alex')
+    await vi.advanceTimersByTimeAsync(300)
 
     await waitFor(() => {
       expect(screen.queryByText('Maria Lopez')).not.toBeInTheDocument()
     })
 
     expect(screen.getAllByText('Alex P.').length).toBeGreaterThan(0)
-    expect(screen.getByTestId('order-history-pagination')).toHaveTextContent(
-      /of 4 entries/i,
-    )
+    expect(screen.getByTestId('order-history-pagination')).toHaveTextContent(/of 4 entries/i)
   })
 
   it('filters orders by status tab', async () => {
@@ -83,9 +88,7 @@ describe('OrderHistoryView', () => {
     await user.click(screen.getByTestId('order-filter-cancelled'))
 
     await waitFor(() => {
-      expect(screen.getByTestId('order-history-pagination')).toHaveTextContent(
-        /of 3 entries/i,
-      )
+      expect(screen.getByTestId('order-history-pagination')).toHaveTextContent(/of 3 entries/i)
     })
 
     expect(screen.getByText('David Chen')).toBeInTheDocument()
@@ -102,11 +105,33 @@ describe('OrderHistoryView', () => {
 
     await user.click(screen.getByTestId('view-details-ord-1040'))
 
-    expect(screen.getByTestId('order-detail-drawer')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByTestId('order-detail-drawer')).toBeInTheDocument()
+    })
+
     expect(screen.getByTestId('order-drawer-telegram-id')).toHaveTextContent('@tg_89221')
-    expect(screen.getByTestId('order-drawer-timeline')).toHaveTextContent('Order Accepted')
-    expect(screen.getByTestId('order-drawer-timeline')).toHaveTextContent('Order Completed')
+    expect(screen.getByTestId('order-drawer-timeline')).toHaveTextContent('Order placed')
+    expect(screen.getByTestId('order-drawer-timeline')).toHaveTextContent('Completed')
     expect(screen.getByTestId('drawer-line-item-li-1')).toHaveTextContent('Extra Basil')
+  })
+
+  it('shows drawer error when order details are not found', async () => {
+    cleanup()
+    resetOrderHistoryForTests()
+    installOrderHistoryFetchMock({ missingDetailsOrderId: 'ord-1040' })
+
+    const user = userEvent.setup()
+    renderOrderHistory()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('view-details-ord-1040')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByTestId('view-details-ord-1040'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('order-drawer-error')).toBeInTheDocument()
+    })
   })
 
   it('closes drawer via close button', async () => {
@@ -118,7 +143,10 @@ describe('OrderHistoryView', () => {
     })
 
     await user.click(screen.getByTestId('view-details-ord-1040'))
-    expect(screen.getByTestId('order-detail-drawer')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('order-detail-drawer')).toBeInTheDocument()
+    })
 
     await user.click(screen.getByTestId('order-drawer-close'))
 

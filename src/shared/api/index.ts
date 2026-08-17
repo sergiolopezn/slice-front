@@ -12,6 +12,7 @@ export {
   patchItemAvailability,
   patchToppingStock,
 } from './menu'
+export { fetchOrderDetails, fetchOrderHistory } from './order-history'
 export type {
   ActivityFeedEntry,
   ActivityFeedResponse,
@@ -38,3 +39,14 @@ export type {
   TelegramSyncStatus,
   ToppingDto,
 } from './types/menu'
+export type {
+  HistoryFulfillmentType,
+  HistoryOrderStatus,
+  OrderDetailsDto,
+  OrderDetailsItemDto,
+  OrderHistoryItemDto,
+  OrderHistoryQueryParams,
+  OrderHistoryResponse,
+  OrderHistoryStatusFilter,
+  OrderTimelineEntryDto,
+} from './types/order-history'

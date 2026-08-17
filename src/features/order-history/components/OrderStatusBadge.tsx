@@ -1,10 +1,9 @@
 import { Badge } from '@/shared/components/ui'
 import type { OrderStatus } from '../types/orderHistory'
 
-const statusConfig: Record<OrderStatus, { label: string; variant: 'ready' | 'rush' | 'prep' }> = {
+const statusConfig: Record<OrderStatus, { label: string; variant: 'ready' | 'rush' }> = {
   completed: { label: 'COMPLETED', variant: 'ready' },
   cancelled: { label: 'CANCELLED', variant: 'rush' },
-  refunded: { label: 'REFUNDED', variant: 'prep' },
 }
 
 type OrderStatusBadgeProps = {
